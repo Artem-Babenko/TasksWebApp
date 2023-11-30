@@ -1,0 +1,159 @@
+﻿<!DOCTYPE html>
+<html class="dark-theme">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/indexstyle.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link type="image/png" sizes="96x96" rel="icon" href="/photos/icons6-task-96.png">
+    <title>Завдання</title>
+</head>
+<body>
+    <l-ring size="25"
+            stroke="3"
+            bg-opacity="0.1"
+            speed="3"
+            color="white"
+            id="loadIcon"></l-ring>
+    <nav>
+        <div class="account">
+            <i class="fa-solid fa-circle-user"></i>
+            <span id="userNameField">Користувач</span>
+            <i class="fa-solid fa-ellipsis" id="accountPropertiesButton"></i>
+        </div>
+        <div class="account-properties">
+            <p id="settingsButton"><i class="fa-solid fa-gear"></i>Налаштування</p>
+            <p id="statisticsButton"><i class="fa-solid fa-calculator"></i>Статистика</p>
+            <p id="logoutButton"><i class="fa-solid fa-right-from-bracket"></i>Вийти</p>
+        </div>
+        <!-- Списки за замовчуванням -->
+        <ul>
+            <li class="today active"><i class="fa-solid fa-list-check"></i>Сьогодні<span></span></li>
+            <li class="planed"><i class="fa-regular fa-calendar"></i>Заплановано<span></span></li>
+            <li class="important"><i class="fa-regular fa-star"></i>Важливо<span></span></li>
+            <li class="tasks"><i class="fa-regular fa-clipboard"></i>Завдання<span></span></li>
+        </ul>
+
+        <!-- Списки користувача -->
+        <div class="your-lists">
+            Ваші списки:
+            <i class="fa-solid fa-plus" id="addListButton"></i>
+        </div>
+
+        <ul id="userLists">
+            <!--<li><i class="fa-solid fa-building-columns"></i>Університет</li>
+        <li><i class="fa-solid fa-code"></i>Саморозвиток</li>-->
+        </ul>
+        <i class="fa-solid fa-sun"id="theme-button"></i>
+    </nav>
+
+    <main>
+        <!-- <h2>
+             <span>Завдання</span>
+             <i class="fa-solid fa-ellipsis" id="list-properties-button"></i>
+         </h2>
+         <div class="properties">
+             <p><i class="fa-regular fa-pen-to-square"></i>Перейменувати</p>
+             <p><i class="fa-regular fa-image"></i>Замінити фон</p>
+             <p><i class="fa-regular fa-trash-can"></i>Видалити список</p>
+         </div>-->
+        <!--<div class="scroll-space">
+            <div class="uncompleted">
+                <div class="container">
+                    <div class="short-panel">
+                        <i class="fa-regular fa-square" id="checkmark"></i>
+                        <p contenteditable>Виконати домашнє завдання.</p>
+                        <i class="fa-regular fa-star" id="star"></i>
+                        <i class="fa-solid fa-angle-right" id="angle"></i>
+                    </div>
+                    <div class="info-panel">
+                        <p class="note">Створити якусь програму. Предмет ООП. Чи сайт створити... хто зна...</p>
+                        <div class="dates">
+                            <div><i class="fa-regular fa-calendar"></i>Tермін виконання</div>
+                            <div><i class="fa-solid fa-repeat"></i>Повторення</div>
+                        </div>
+                        <div class="category">
+                            <i class="fa-solid fa-hashtag"></i>Програмування
+                        </div>
+                        <div class="time-spent">
+                            <div><i class="fa-regular fa-clock"></i>Витрачений час</div>
+                            <table>
+                                <tr>
+                                    <td>Пн, 03.11</td>
+                                    <td>45 хв</td>
+                                </tr>
+                                <tr>
+                                    <td>Вт, 04.11</td>
+                                    <td>27 хв</td>
+                                </tr>
+                            </table>
+                            <p><i class="fa-solid fa-plus"></i>Додати час</p>
+                        </div>
+                        <div class="footer">
+                            <p class="create">Cтворено 03.11</p>
+                            <i class="fa-regular fa-trash-can delete"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="completed-button">
+                <p>
+                    <i class="fa-solid fa-chevron-right"></i>
+                    Завершені
+                    <span>2</span>
+                </p>
+            </div>
+
+            <div class="completed">
+
+            </div>
+        </div>-->
+    </main>
+
+    <div class="blur-background">
+        <div class="login-panel">
+            <h2>Вхід</h2>
+            <p>Логін</p>
+            <input type="text" class="login" name="login"/>
+            <p>Пароль</p>
+            <input type="password" class="password" name="password"/>
+            <div class="error">Неведений</div>
+            <div class="hint">
+                Немає акаунту?<span id="registrationLink">Реєструйся!</span>
+            </div>
+            <button>Увійти</button>
+        </div>
+        <div class="registration-panel">
+            <h2>Реєстрація</h2>
+            <p>Ім'я</p>
+            <input type="text" class="name" name="name" autocomplete="off"/>
+            <p>Прізвище</p>
+            <input type="text" class="surname" name="surname" />
+            <p>Логін</p>
+            <input type="text" class="login" name="login"/>
+            <p>Пароль</p>
+            <input type="password" class="password1" name="password1" />
+            <p>Підтвердіть пароль</p>
+            <input type="password" class="password2" name="password2"/>
+            <div class="error">Неведений логін!</div>
+            <div class="hint">
+                Маєш акаунт?<span id="loginLink">Входь!</span>
+            </div>
+            <button>Зареєструватись</button>
+        </div>
+        <div class="logout-panel">
+            <h2>Ви дійсно хочете вийти з акаунту?</h2>
+            <div class="buttons">
+                <button class="yes">Так</button>
+                <button class="no">Ні</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/js/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/ring.js"></script>
+</body>
+</html>

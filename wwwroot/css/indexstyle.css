@@ -1,0 +1,977 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&family=Ubuntu:wght@300;400;500;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Ubuntu',sans-serif;
+}
+
+:root.dark-theme {
+    --nav: #222;
+    --button: rgb(50, 50, 50);
+    --nav-text: white;
+    --container-text: white;
+    --container-back: rgba(25,25,25,0.7);
+    --info-panel-containers: rgba(35,35,35,0.9);
+    --container-footer-text: #999;
+}
+
+:root.light-theme {
+    --nav: #f4f4f4;
+    --button: rgb(225, 225, 225);
+    --nav-text: black;
+    --container-text: black;
+    --container-back: rgba(245, 245, 245, 0.8);
+    --info-panel-containers: rgba(255, 255, 255, 0.9);
+    --container-footer-text: #999;
+}
+
+body {
+    width: 100%;
+    display: flex;
+    background-color: var(--nav);
+}
+
+#loadIcon{
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 5;
+    margin: 10px;
+    stroke: black;
+    display: none;
+}
+
+nav {
+    background-color: var(--nav);
+    height: 100vh;
+    min-width: 0;
+    width: 0;
+    z-index: 2;
+    color: var(--nav-text);
+    box-shadow: inset 1px 3px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    opacity: 1;
+    display: block;
+    transition: all 0.3s ease;
+}
+
+nav.open{
+    min-width: 250px;
+    width: 250px;
+}
+
+
+@media screen and (max-width: 650px) {
+    nav {
+        width: 0;
+        position: fixed;
+    }
+
+    nav.open {
+        width: 100%;
+    }
+}
+
+
+@media screen and (min-width: 650px) {
+    nav {
+        min-width: 0px;
+        width: 0px;
+        position: relative;
+    }
+
+    nav.open {
+        min-width: 250px;
+        width: 250px;
+    }
+}
+
+
+@media screen and (min-width: 900px){
+    nav {
+        min-width: 250px;
+        width: 250px;
+    }
+    nav.open{
+        min-width: 250px;
+        width: 250px;
+    }
+
+    main .open-button{
+        display: none;
+    }
+}
+
+
+nav .account{
+    font-size: 16px;
+    margin: 5px 10px;
+    margin-bottom: 0px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding: 20px;
+}
+
+nav .account span{
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+nav .account i:first-of-type{
+    font-size: 20px;
+    padding-right: 10px;
+}
+
+nav .account i:last-of-type{
+    position: absolute;
+    right: 0;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+.account-properties{
+    border-radius: 5px;
+    background-color: var(--nav);
+    box-shadow: 0px 5px 10px rgba(0,0,0,0.3);
+    margin: 0px 15px;
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+}
+
+.account-properties p{
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.account-properties p:hover{
+    background-color: var(--button);
+}
+
+.account-properties p i{
+    margin-right: 10px;
+}
+
+nav ul {
+    list-style: none;
+    margin: 0 10px;
+}
+
+nav ul li{
+    position: relative;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+    padding: 10px 20px;
+    margin: 5px 0;
+    font-size: 15px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+nav ul li:hover{
+    background-color: var(--button);
+}
+
+nav ul li span{
+    position: absolute;
+    right: 15px;
+    text-align: right;
+   /* background-color: var(--button);
+    padding: 1px 5px;
+    border-radius: 200px;*/
+}
+
+nav ul li.active{
+    background-color: var(--button);
+    color: var(--nav-text); 
+    /*box-shadow: 1px 3px 10px rgba(0, 0, 0, 0.3);*/
+}
+
+nav ul li.active i{
+    transform: rotateY(360deg);
+    color: var(--nav-text); 
+}
+
+nav ul li i{
+    position: relative;
+    font-size: 18px;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    text-align: center;
+    transition: color 0.3s ease, transform 0.5s ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+nav .your-lists {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px;
+    padding: 0px 10px;
+    padding-left: 15px;
+    font-size: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+nav .your-lists i{
+    font-size: 17px;
+    padding: 5px;
+    cursor: pointer;
+    font-weight: 400;
+}
+
+#userLists {
+    height: calc(100% - 350px);
+    overflow-y: scroll; /* Залишити вертикальний скрол */
+    overflow-x: hidden;
+    margin: 0 5px 0 10px;
+}
+
+#theme-button{
+    position: absolute;
+    bottom: 0;
+    padding: 10px;
+    margin: 5px;
+    font-size: 20px;
+}
+
+main {
+    height: 100vh;
+    /*background-image: url('/photos/bear.jpg');*/
+    background-color: #111;
+    background-size: cover;
+    background-position: center top;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+main h2{
+    margin: 30px 45px;
+    font-weight: 500;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 25px;
+}
+
+main h2 span{
+    padding: 5px 10px;
+    outline: none;
+    border: none;
+    border-radius:5px;
+}
+
+main h2 span:focus{
+    background-color: var(--container-back);
+}
+
+main h2 i{
+    padding: 10px;
+    font-size: 20px;
+}
+
+main h2 i:last-of-type{
+    position: absolute;
+    right: 0;
+    margin-right: 40px;
+    cursor: pointer;
+}
+
+main h2 .now-date{
+    position: absolute;
+    top: 65px;
+    font-size: 15px;
+    font-weight: 300;
+    padding-left: 12px;
+}
+
+main .properties{
+    position: absolute;
+    top: 60px;
+    right: 40px;
+    background-color: var(--info-panel-containers);
+    /*backdrop-filter: blur(10px);*/
+    border-radius: 5px;
+    z-index: 1;
+    color: var(--container-text);
+    max-height: 0px;
+    overflow: hidden;
+    transition: max-height 0.5s ease;
+}
+
+.properties p{
+    padding: 15px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    gap: 10px;
+    transition: all 0.3s ease;
+}
+
+.properties p:hover{
+    background-color: var(--button);
+}
+
+.properties p i{
+    position:relative;
+    transition: all 0.3s ease;
+}
+
+.properties .delete-message{
+    padding: 0;
+    padding-bottom: 0;
+    justify-content: center;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.properties .delete-message.active{
+    padding-bottom: 10px;
+    max-height: 38px;
+}
+
+.properties .delete-message button{
+    background-color: #a42b2b;
+    color: var(--container-text);
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+    font-size: 16px;
+    font-weight: 500;
+    outline: none;
+    border: none;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.background-panel {
+    position: absolute;
+    display: flex;
+    flex-wrap: wrap;
+    width: 360px;
+    padding: 15px 20px;
+    z-index: 1;
+    gap: 10px;
+    background-color: var(--info-panel-containers);
+    border-radius: 5px;
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+    top: -100px;
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+}
+
+.background-panel img {
+    width: 100px;
+    height: 56px;
+    border-radius: 5px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    user-select: none;
+}
+
+.background-panel img:hover {
+    box-shadow: 1px 3px 10px rgba(0,0,0,0.5);
+}
+
+.background-panel img.active{
+    outline: 2px white solid;
+    box-shadow: 1px 3px 10px rgba(0,0,0,0.5);
+}
+
+.background-panel h3{
+    color: var(--container-text);
+    font-size: 16px;
+    font-weight: 400;
+    text-align: center;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+main .scroll-space {
+    overflow-y: scroll; /* Залишити вертикальний скрол */
+    overflow-x: hidden;
+    margin: 0 15px;
+    height: calc(100% - 220px);
+}
+
+.scroll-space::-webkit-scrollbar, #userLists::-webkit-scrollbar {
+    width: 5px;
+}
+
+.scroll-space::-webkit-scrollbar-track, #userLists::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.0);
+    border-radius: 10px;
+}
+
+.scroll-space::-webkit-scrollbar-thumb, #userLists::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.scroll-space::-webkit-scrollbar-thumb:hover, #userLists::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+main .container {
+    padding: 10px;
+    padding-bottom: 5px;
+    margin: 10px 15px;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--container-back);
+    backdrop-filter: blur(10px);
+    border-radius: 5px;
+    color: var(--container-text);
+    overflow: hidden;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.container:first-of-type{
+    margin-top: 0px;
+}
+
+.short-panel{
+    display: flex;
+    align-items: start;
+    justify-content: left;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+#checkmark{
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#star{
+    padding: 10px;
+    font-size: 18px;
+    cursor: pointer;
+}
+
+#angle{
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transform: rotate(0deg);
+    cursor: pointer;
+    transition: all 0.5s ease;
+}
+
+.short-panel p {
+    padding: 10px 0 10px 0;
+    width: 100%;
+    font-weight: 400;
+    cursor: pointer;
+    outline: none;
+}
+
+.short-panel .annotation{
+    position: relative;
+    bottom: inherit;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--container-footer-text);
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
+    text-transform: none;
+}
+
+.short-panel .annotation i{
+    margin-right: 4px;
+    font-size: 11px;
+}
+
+.info-panel {
+    padding: 0 10px;
+    width: 100%;
+    display: block;
+    position: relative;
+    overflow: hidden;
+    max-height: 0px;
+    color: var(--container-text);
+    font-weight: 300;
+    transition: max-height 0.5s ease;
+}
+
+.info-panel .note{
+    margin-top: 5px;
+    display: flex;
+    overflow: hidden;
+    transition: max-height 0.5s ease, height 0.5s ease;
+}
+
+.note i{
+    font-size: 17px;
+    padding-top: 1.5px;
+}
+
+.note .description-input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: var(--container-text);
+    font-size: 15px;
+    letter-spacing: 0.5px;
+    resize: none;
+    overflow: hidden;
+    transition: max-height 0.3s ease, height 0.3s ease;
+    font-weight: 300;
+}
+
+.note .description-input::placeholder{
+    color: var(--container-text);
+}
+
+.info-panel .note, .info-panel .dates, .info-panel .today, .info-panel .list-of-tasks-name, .info-panel .time-spent {
+    margin-bottom: 10px;
+    background-color: var(--info-panel-containers);
+    border-radius: 5px;
+}
+
+.info-panel .today:hover, .info-panel .dates div:hover{
+    cursor: pointer;
+    background-color: var(--button);
+    border-radius: 5px;
+}
+
+.info-panel .dates div.choosed {
+    background-color: var(--button);
+    outline: 2px solid var(--container-back);
+    border-radius: 5px;
+}
+
+.info-panel .dates div.choosed .remove, .info-panel .today.active .remove{
+    display: inline-block;
+}
+
+.info-panel .dates div .remove, .info-panel .today .remove{
+    position: absolute;
+    right: 15px;
+    padding: 2px 10px;
+    cursor: pointer;
+    z-index: 1;
+    display: none;
+}
+
+.info-panel .today.active {
+    background-color: var(--button);
+    outline: 2px solid var(--container-back);
+}
+
+.info-panel .time-spent{
+    margin: 0;
+}
+
+.info-panel i{
+    padding-right: 10px;
+}
+
+.info-panel .dates div, .info-panel .today, .info-panel .note, .info-panel .list-of-tasks-name, .info-panel .time-spent {
+    padding: 10px 20px;
+    transition: background-color 0.3s ease;
+}
+
+.info-panel .time-spent div{
+    padding-bottom: 5px;
+}
+
+.info-panel .time-spent table{
+    border-collapse: collapse;
+}
+
+.info-panel table td{
+    padding: 5px 10px;
+    border-bottom: #555 1px solid;
+}
+
+.info-panel .time-spent p{
+    padding: 10px 20px;
+}
+
+.info-panel .footer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--container-footer-text);
+}
+
+.footer p.create, .footer i.delete{
+    padding: 10px;
+}
+
+.footer i.delete{
+    font-size: 18px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.footer .delete-message {
+    position: absolute;
+    right: 45px;
+    color: var(--container-text);
+    max-width: 0px;
+    overflow: hidden;
+    transition: max-width 0.3s ease;
+}
+
+.calendar {
+    position: absolute;
+    background-color: var(--nav);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 1px 2px 10px rgba(0,0,0,0.3);
+    max-height: 310px;
+    opacity: 1;
+    overflow: hidden;
+    z-index: 1;
+    color: var(--container-text);
+    outline: 2px solid var(--button);
+    transition: all 0.3s ease;
+}
+
+.calendar.hidden{
+    max-height: 0px;
+    opacity: 0;
+}
+
+.calendar .header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.calendar h3{
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.calendar .header button{
+    height: 40px;
+    width: 40px;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: var(--container-text);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.calendar .header button:hover{
+    background-color: var(--button);
+    border-radius: 5px;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+}
+
+.calendar table{
+    padding: 5px 10px;
+    width: 100%;
+}
+
+.calendar table td, .calendar table th{
+    padding: 8px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.calendar table td.today{
+    outline: 2px solid var(--container-footer-text);
+    background-color: var(--button);
+    font-weight: 500;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.3);
+}
+
+.calendar table td:hover:not(.empty):not(.today){
+    background-color: var(--container-text);
+    color: var(--info-panel-containers);
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
+    font-weight: 500;
+}
+
+.calendar table td.choosed{
+    background-color: var(--container-text);
+    color: var(--info-panel-containers);
+    box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
+    font-weight: 500;
+}
+
+main .completed-button {
+    margin: 20px 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+.completed-button p{
+    padding: 0px 5px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    color: var(--container-text);
+    background-color: var(--container-back);
+    backdrop-filter: blur(10px);
+}
+
+main .completed-button i{
+    font-size: 15px;
+    padding: 10px;
+    transition: all 0.5s ease;
+}
+
+main .completed-button span{
+    padding: 0px 5px;
+}
+
+main .completed{
+    overflow: hidden;
+    max-height: 0px;
+    transition: all 0.5s ease;
+}
+
+.add-new-task-panel {
+    background-color: var(--container-back);
+    backdrop-filter: blur(10px);
+    margin: 10px 30px;
+    margin-right: 35px;
+    margin-bottom: 5px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+}
+
+.add-new-task-panel i{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 35px;
+    height: 40px;
+    color: var(--container-text);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.add-new-task-panel input{
+    background-color: transparent;
+    border: none;
+    font-size: 16px;
+    padding: 10px 0px;
+    border: none;
+    outline: none;
+    color: var(--container-text);
+    width: calc(100% - 30px);
+}
+
+.add-new-task-panel input::placeholder{
+    color: var(--container-text);
+}
+
+.blur-background {
+    position: absolute;
+    width: 100%;
+    height: 100vh;
+    background-color: transparent;
+    backdrop-filter: blur(15px);
+    z-index: -1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.login-panel, .registration-panel {
+    background-color: var(--info-panel-containers);
+    border-radius: 5px;
+    padding: 10px 30px;
+    color: var(--container-text);
+    display: none; /*flex*/
+    flex-direction: column;
+    font-size: 18px;
+    box-shadow: 1px 3px 10px rgba(0,0,0,0.3);
+}
+
+.blur-background h2 {
+    text-align: center;
+    margin: 5px;
+}
+
+.blur-background p {
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
+
+.blur-background input {
+    background-color: var(--container-back);
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 14px;
+    color: var(--container-text);
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.blur-background .error {
+    text-align: center;
+    display: none;
+    font-size: 16px;
+    margin: 0px auto;
+    margin-bottom: 7px;
+    letter-spacing: 0.3px;
+    color: red;
+    font-weight: 600;
+    max-width: 240px;
+}
+
+.blur-background .hint {
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    word-spacing: 0.5px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.blur-background .hint span{
+    cursor:pointer;
+    font-weight: 500;
+    padding: 5px 10px;
+    padding-right: 0;
+}
+
+.blur-background button {
+    background-color: var(--button);
+    color: var(--container-text);
+    border-radius: 5px;
+    letter-spacing: 0.5px;
+    font-size: 17px;
+    font-weight: 500;
+    margin: 10px auto;
+    outline: none;
+    border: none;
+    box-shadow: 0px 2px 10px rgba(0,0,0,0.2);
+    padding: 7px 14px;
+    cursor: pointer;
+}
+
+.blur-background button.yes{
+    color: white;
+}
+
+.logout-panel {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background-color: var(--info-panel-containers);
+    color: var(--container-text);
+    border-radius: 5px;
+    box-shadow: 1px 3px 10px rgba(0,0,0,0.3);
+    padding: 15px 20px;
+}
+
+.logout-panel h2{
+    max-width: 250px;
+    font-size: 25px;
+}
+
+.logout-panel .buttons{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 50px;
+}
+
+.logout-panel .buttons button:first-of-type{
+    background-color: #a42b2b;
+}
+
+main .open-button{
+    color: white;
+    position: relative;
+    z-index:1;
+    padding: 10px 11px;
+    margin-left: 15px;
+    font-size: 20px;
+    font-weight: 600;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+main .open-button:hover{
+    background-color: var(--container-back);
+    /*backdrop-filter: blur(10px);*/
+}
+
+@media screen and (max-width: 650px) {
+    main,body, nav{
+        overflow: hidden;
+    }
+    #theme-button {
+        bottom: 60px;
+        padding: 10px;
+        margin: 5px;
+        font-size: 20px;
+    }
+    main h2{
+        margin: 30px 20px;
+    }
+    main h2 i:last-of-type{
+        margin-right: 30px;
+    }
+    main .scroll-space {
+        margin: 0px 0px;
+        height: calc(100% - 280px);
+    }
+    .add-new-task-panel {
+        margin: 10px 20px;
+        margin-left: 15px;
+        margin-bottom: 5px;
+        position: fixed;
+        bottom: 45px;
+        left: 0;
+        right: 0;
+    }
+    main .container, main .add-new-task-panel {
+        backdrop-filter: none;
+    }
+    main .open-button{
+        position: fixed;
+        bottom: 5px;
+        left: 0;
+    }
+    .info-panel .dates div:hover:not(.choosed){
+        background-color: initial;
+    }
+}
