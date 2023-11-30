@@ -154,7 +154,7 @@ export async function planedPage() {
         }
     });
     addNewTaskPanel.append(addInput);
-    //main.append(addNewTaskPanel);////////////////////////////////////////
+    //main.append(addNewTaskPanel);//////////
 
     main.append(navOpenButton());
 
