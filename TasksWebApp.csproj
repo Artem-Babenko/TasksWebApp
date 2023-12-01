@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Screenshots\" />
     <Folder Include="wwwroot\compresedPhotos\" />
   </ItemGroup>
 
