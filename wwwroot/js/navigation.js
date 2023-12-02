@@ -2,7 +2,6 @@ import { userListOfTasks } from "./listOfTasks.js"
 import { openLoginPanel } from './authentication.js'
 import { decRequests, incRequests } from "./index.js"
 
-const main = document.querySelector('main');
 const navPanel = document.querySelector('nav');
 const blurBackground = document.querySelector('.blur-background');
 const logoutPanel = blurBackground.querySelector('.logout-panel');
@@ -21,6 +20,11 @@ document.querySelectorAll('nav ul li').forEach(button => button.addEventListener
     button.classList.add("active");
 }));
 
+const root = document.documentElement;
+// Встановлення теми на основі кук.
+if (root.classList.contains("dark-theme") && Cookies.get("theme") === "light-theme") {
+    switchThemes();
+}
 
 /**
  * Створює клавішу для посилання на власний список.
@@ -126,7 +130,7 @@ export async function setUser() {
     }
 }
 
-
+/** Вихід з аккаунту. */
 function logout() {
     blurBackground.style.zIndex = 2;
     blurBackground.style.opacity = 1;
@@ -165,6 +169,7 @@ function accoutPropertiesMenu() {
     }
 }
 
+/** Додати список завдань користувача. */
 async function addList() {
     incRequests();
     const response = await fetch('/lists-of-tasks/new', {
@@ -179,3 +184,19 @@ async function addList() {
     listsContainer.append(listOfTasksButton(list));
     Cookies.set('list-' + list.id + 'PhotoPath', list.background);
 }
+
+const themeButton = document.getElementById('theme-button');
+
+/** Метод який переключає теми.*/
+export function switchThemes() {
+    root.classList.toggle('dark-theme');
+    root.classList.toggle('light-theme');
+    themeButton.classList.toggle('fa-sun');
+    themeButton.classList.toggle('fa-moon');
+    Cookies.set('theme', root.classList.contains("dark-theme") ? "dark-theme" : "light-theme");
+}
+
+// Натиснувши на клавішу тем, переключиться тема.
+themeButton.addEventListener('click', () => {
+    switchThemes();
+});

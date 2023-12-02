@@ -54,11 +54,12 @@ export function openRegistationPanel() {
     registrationPanel.querySelector('.error').style.display = "none";
 }
 
+/** Запит на вхід та перевірка даних. */
 async function login() {
     const loginInput = loginPanel.querySelector('.login');
-    loginInput.addEventListener('input', () => loginInput.style.outline = "none");
+    offOutLine(loginInput);
     const passwordInput = loginPanel.querySelector('.password');
-    passwordInput.addEventListener('input', () => passwordInput.style.outline = "none");
+    offOutLine(passwordInput);
     const error = loginPanel.querySelector('.error');
     const login = loginInput.value;
     const password = passwordInput.value;
@@ -120,17 +121,18 @@ async function login() {
     }
 }
 
+/** Запит на реєстрацію та перевірка даних. */
 async function registration() {
     const nameInput = registrationPanel.querySelector('.name');
-    nameInput.addEventListener('input', () => nameInput.style.outline = "none");
+    offOutLine(nameInput);
     const surnameInput = registrationPanel.querySelector('.surname');
-    surnameInput.addEventListener('input', () => surnameInput.style.outline = "none");
+    offOutLine(surnameInput);
     const loginInput = registrationPanel.querySelector('.login');
-    loginInput.addEventListener('input', () => loginInput.style.outline = "none");
+    offOutLine(loginInput);
     const passwordFirstInput = registrationPanel.querySelector('.password1');
-    passwordFirstInput.addEventListener('input', () => passwordFirstInput.style.outline = "none");
+    offOutLine(passwordFirstInput);
     const passwordSecondInput = registrationPanel.querySelector('.password2');
-    passwordSecondInput.addEventListener('input', () => passwordSecondInput.style.outline = "none");
+    offOutLine(passwordSecondInput);
     const error = registrationPanel.querySelector('.error');
 
 
@@ -222,7 +224,13 @@ async function registration() {
     }
 }
 
+/** Повертає true, якщо використані тільки доступні символи. */
 function isEnglishLetters(input) {
     const englishLettersRegex = /^[a-zA-Z0-9_.]+$/;
     return englishLettersRegex.test(input);
+}
+
+/** Вимкнення outline на елементі input. */
+function offOutLine(inputElement) {
+    inputElement.addEventListener('input', () => inputElement.style.outline = "none");
 }
