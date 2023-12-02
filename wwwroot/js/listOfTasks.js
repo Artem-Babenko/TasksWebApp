@@ -1,6 +1,7 @@
-import { doOnLoad, decRequests, incRequests } from "./index.js";
-import { taskContainer, tasksPage, navOpenButton } from "./tasksPage.js";
+import { decRequests, incRequests } from "./index.js";
+import { taskContainer } from "./tasksPage.js";
 import { todayPage } from "./todayPage.js";
+import { pageHeader, pageScrollSpace, taskAddPanel, navOpenButton, saveTasksToLocalStorage, getTasksFromLocalStorage } from "./funcForPages.js"
 
 const importantSpan = document.querySelector('nav ul .important span');
 
@@ -10,37 +11,17 @@ const importantSpan = document.querySelector('nav ul .important span');
  */
 export async function userListOfTasks(list) {
     const main = document.querySelector("main");
-
+    // Встановлення фону.
     main.style.backgroundImage = `url("/photos/${Cookies.get('list-' + list.id + 'PhotoPath')}"`;
 
     main.textContent = "";
 
     // Заголовок
-    const header = document.createElement("h2");
-    const nameSpan = document.createElement('span');
     const listButton = document.getElementById('list-' + list.id);
-    nameSpan.append(listButton.querySelector('p').innerText);
-    nameSpan.contentEditable = true;
-    nameSpan.addEventListener('input', () => {
-        const text = nameSpan.innerText;
-        if (text.length > 20) {
-            // Обрізати текст, якщо введено більше символів
-            nameSpan.innerText = text.substring(0, 20);
-            // Отримуємо об'єкт Selection
-            var selection = window.getSelection();
-
-            // Створюємо діапазон та встановлюємо його на кінець тексту
-            var range = document.createRange();
-            range.selectNodeContents(nameSpan);
-            range.collapse(false); // true для встановлення на початок, false для встановлення на кінець
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-    });
-    header.append(nameSpan);
-    const propertiesButton = document.createElement('i');
-    propertiesButton.classList.add("fa-solid", "fa-ellipsis");
-    header.append(propertiesButton);
+    const { header,
+        propertiesButton,
+        nameSpan
+    } = pageHeader(listButton.querySelector('p').innerText, false, true);
     main.append(header);
 
     // Вікно властивостей
@@ -242,80 +223,23 @@ export async function userListOfTasks(list) {
     });
     main.append(properties);
 
-    // Площинна для відображення завдань
-    const scrollSpace = document.createElement("div");
-    scrollSpace.classList.add('scroll-space');
-    const uncompleted = document.createElement('div');
-    uncompleted.classList.add("uncompleted");
-    scrollSpace.append(uncompleted);
-    
-
-    const completedButton = document.createElement("div");
-    completedButton.classList.add("completed-button");
-    const p = document.createElement("p");
-    const completedAngleIcon = document.createElement("i");
-    completedAngleIcon.classList.add("fa-solid", "fa-chevron-right");
-    p.append(completedAngleIcon);
-    p.append("Завершені");
-    const completedSpan = document.createElement("span");
-    p.append(completedSpan);
-    completedButton.append(p);
-    completedButton.style.display = "none";
-    scrollSpace.append(completedButton);
-
-    const completed = document.createElement('div');
-    completed.classList.add("completed");
-    scrollSpace.append(completed);
+    // Площинна для відображення  завдань.
+    const { uncompleted, // Не виконані завдання.
+        completedButton, // Клавіша відкриття списку виконаних.
+        completedSpan,   // Число виконаних завдань.
+        completed,       // Виконані завдання.
+        scrollSpace      // Площинна для відображення  завдань.
+    } = pageScrollSpace();
     main.append(scrollSpace);
 
     // Поле для додавання завдань.
-    const addNewTaskPanel = document.createElement('div');
-    addNewTaskPanel.classList.add('add-new-task-panel');
-    const addButton = document.createElement('i');
-    addButton.classList.add('fa-solid', 'fa-plus');
-
-    addNewTaskPanel.append(addButton);
-    const addInput = document.createElement('input');
-    addInput.setAttribute('placeholder', 'Додати нове завдання у список');
-    addInput.setAttribute('name', 'add-input');
-    addInput.addEventListener('keydown', function (event) {
-        // Перевірка, чи натиснута клавіша Enter
-        if (event.key === "Enter") {
-            const taskText = addInput.value.trim();
-            // Перевірка, чи введено не пустий текст
-            if (taskText !== '') {
-                createTaskForList(taskText, list);
-                // Очищення input після додавання завдання
-                addInput.value = '';
-            }
-        }
-    });
-    addButton.addEventListener('click', function () {
-        const taskText = addInput.value.trim();
-        // Перевірка, чи введено не пустий текст
-        if (taskText !== '') {
-            createTaskForList(taskText, list);
-            // Очищення input після додавання завдання
-            addInput.value = '';
-        }
-    });
-    addNewTaskPanel.append(addInput);
+    const addNewTaskPanel = taskAddPanel("Додати нове завдання у список", null, list.id);
     main.append(addNewTaskPanel);
 
+    // Клавіша для вікриття бокової панелі.
     main.append(navOpenButton());
 
-    completedButton.addEventListener('click', () => {
-        if (completedButton.classList.contains('active')) {
-            completedButton.classList.remove('active');
-            completedAngleIcon.style.transform = "rotate(0deg)";
-            completed.style.maxHeight = "0px";
-        } else {
-            completedButton.classList.add('active');
-            completedAngleIcon.style.transform = "rotate(90deg)";
-            completed.style.maxHeight = completed.scrollHeight + "px";
-        }
-    });
-
+    // Завантаження завдань з локольного сховища браузера.
     const tasks = getTasksFromLocalStorage(list.id);
     const uncompletedTasks = tasks.filter(task => !task.completed);
     const completedTasks = tasks.filter(task => task.completed);
@@ -326,14 +250,16 @@ export async function userListOfTasks(list) {
         completedTasks.forEach(task => completed.append(taskContainer(task)));
     }
 
+    // Завантаження завдань з сервера.
     incRequests();
     const response = await fetch(`/lists-of-tasks/${list.id}`, {
         method: "GET",
         headers: { "Accept": "application/json" }
     });
 
-    if (response.status === 200) {
+    if (response.ok) {
         const tasks = await response.json();
+        // Перезапис завдань та сторінці та збережених у локальному сховищі.
         saveTasksToLocalStorage(tasks, list.id);
         uncompleted.textContent = "";
         completedButton.style.display = "none";
@@ -354,63 +280,4 @@ export async function userListOfTasks(list) {
 function getPathFromLocalStorage() {
     const path = localStorage.getItem('photoPaths');
     return path ? JSON.parse(path) : [];
-}
-
-// Записати завдання в localStorage
-function saveTasksToLocalStorage(tasks, id) {
-    localStorage.setItem('tasksFromList' + id, JSON.stringify(tasks));
-}
-
-// Зчитати завдання з localStorage
-function getTasksFromLocalStorage(id) {
-    const storedTasks = localStorage.getItem('tasksFromList' + id);
-    return storedTasks ? JSON.parse(storedTasks) : [];
-}
-
-
-async function createTaskForList(text, list) {
-    incRequests();
-    
-    const taskObject = {
-        id: null,
-        name: text,
-        description: null,
-        completed: false,
-        important: false,
-        today: false,
-        createDate: null,
-        finishDate: null,
-        daysToRepeat: null,
-        wastedTimes: null,
-        listOfTasks: null,
-        listOfTasksId: null
-    };
-    const uncompleted = document.querySelector('main .scroll-space .uncompleted');
-    const activeNavButtonSpan = document.querySelector("nav ul li.active span");
-    activeNavButtonSpan.innerText = ++activeNavButtonSpan.innerText;
-
-    const newTask = taskContainer(taskObject);
-    uncompleted.append(newTask);
-
-    try {
-        const response = await fetch('/lists-of-tasks/new-task', {
-            method: "POST",
-            headers: { "Accept": "application/json", "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: text,
-                listOfTasksId: list.id
-            })
-        });
-
-        if (response.ok) {
-            decRequests();
-            const task = await response.json();
-            newTask.remove();
-            uncompleted.append(taskContainer(task));
-        }
-    }
-    catch (error) {
-        console.error('Error:', error);
-        newTask.remove();
-    }
 }
