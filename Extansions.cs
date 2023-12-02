@@ -313,10 +313,10 @@ public static class Extansions
         app.MapPut("/tasks/set-finish-date/{id}", [Authorize] async (int id, HttpContext context, ApplicationContext db) =>
         {
             string? dateString = await context.Request.ReadFromJsonAsync<string>();
- 
+            
             DateTime.TryParseExact(
                 dateString,
-                "dd.M.yyyy", 
+                "d.M.yyyy", 
                 CultureInfo.InvariantCulture,
                 DateTimeStyles.None,
                 out DateTime resultDateTime
@@ -325,7 +325,7 @@ public static class Extansions
 
             var task = await db.Tasks.FindAsync(id);
             if (task is null) return Results.NotFound();
-
+            
             if (dateString == "null")
             {
                 task.FinishDate = null;
@@ -336,7 +336,7 @@ public static class Extansions
             }
             
             db.SaveChanges();
-
+            
             return Results.Ok();
         });
     }
