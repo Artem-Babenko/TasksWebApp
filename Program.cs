@@ -1,5 +1,4 @@
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.ResponseCompression;
 
 namespace TasksWebApp;
@@ -18,7 +17,6 @@ class Program
             {
                 "text/html",
                 "text/css",
-                "application/javascript",
                 "application/json"
             });
         });
@@ -29,8 +27,6 @@ class Program
             options.Cookie.HttpOnly = false;
             options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.Cookie.Name = "AuthenticationCookie";
-            //options.AccessDeniedPath = "/login";
-            //options.LoginPath = "/login";
         });
         var app = builder.Build();
 
