@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.ResponseCompression;
+using TasksWebApp.Endpoints;
 
 namespace TasksWebApp;
 class Program
@@ -16,7 +17,6 @@ class Program
             options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[]
             {
                 "text/html",
-                "text/css",
                 "application/json"
             });
         });
@@ -38,9 +38,9 @@ class Program
         app.UseAuthorization();
 
         app.SendIndexPage();
-        app.TasksRequests();
-        app.UserRequests();
-        app.ListOfTasksRequests();
+        app.UseTasksEndpoints();
+        app.UseUserEndpoints();
+        app.UseListOfTasksEndpoints();
 
         app.Run();
     }
