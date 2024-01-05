@@ -21,7 +21,7 @@ public static class UserEndpoints
         });
 
         // Отримує дані користувача та авторизує його.
-        app.MapPost("/login", async (HttpContext context, ApplicationContext db) =>
+        app.MapPost("/user/login", async (HttpContext context, ApplicationContext db) =>
         {
             var data = await context.Request.ReadFromJsonAsync<User>();
             if (data is null) return Results.BadRequest();
@@ -51,7 +51,7 @@ public static class UserEndpoints
         });
 
         // Отримує дані реєстрації, створює нового користувача та авторизує його.
-        app.MapPost("/registration", async (HttpContext context, ApplicationContext db) =>
+        app.MapPost("/user/registration", async (HttpContext context, ApplicationContext db) =>
         {
             var data = await context.Request.ReadFromJsonAsync<User>();
             if (data is null) return Results.BadRequest();
@@ -84,73 +84,30 @@ public static class UserEndpoints
         });
 
         // Отримує запит на виралення авторизації.
-        app.MapGet("/logout", async (HttpContext context) =>
+        app.MapGet("/user/logout", async (HttpContext context) =>
         {
             await context.SignOutAsync("Cookies");
         });
 
-        // Отримує назву нового фото для фону у списку "Завдання".
-        app.MapPut("/user/set-tasks-background", [Authorize] async (HttpContext context, ApplicationContext db) =>
+        // Отримує назви новох фото для фону сторінки.
+        app.MapPut("/user/backgrounds", [Authorize] async (HttpContext context, ApplicationContext db) =>
         {
             var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
             var user = await db.Users.FindAsync(userId);
             if (user is null) return Results.NotFound();
 
-            string? photoName = await context.Request.ReadFromJsonAsync<string>();
-            if (photoName is null) return Results.BadRequest();
+            BackgroundsModel? backgrounds = await context.Request.ReadFromJsonAsync<BackgroundsModel>();
+            if (backgrounds is null) return Results.BadRequest();
 
-            user.TasksBackground = photoName;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
-        // Отримує назву нового фото для фону у списку "Важливо".
-        app.MapPut("/user/set-important-background", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = await db.Users.FindAsync(userId);
-            if (user is null) return Results.NotFound();
-
-            string? photoName = await context.Request.ReadFromJsonAsync<string>();
-            if (photoName is null) return Results.BadRequest();
-
-            user.ImportantBackground = photoName;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
-        // Отримує назву нового фото для фону у списку "Сьогодні".
-        app.MapPut("/user/set-today-background", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = await db.Users.FindAsync(userId);
-            if (user is null) return Results.NotFound();
-
-            string? photoName = await context.Request.ReadFromJsonAsync<string>();
-            if (photoName is null) return Results.BadRequest();
-
-            user.TodayBackground = photoName;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
-        // Отримує назву нового фото для фону у списку "Заплановано".
-        app.MapPut("/user/set-planed-background", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = await db.Users.FindAsync(userId);
-            if (user is null) return Results.NotFound();
-
-            string? photoName = await context.Request.ReadFromJsonAsync<string>();
-            if (photoName is null) return Results.BadRequest();
-
-            user.PlanedBackground = photoName;
+            user.TodayBackground = backgrounds.today ?? user.TodayBackground;
+            user.PlanedBackground = backgrounds.planed ?? user.PlanedBackground;
+            user.ImportantBackground = backgrounds.important ?? user.ImportantBackground;
+            user.TasksBackground = backgrounds.tasks ?? user.TasksBackground;
             db.SaveChanges();
 
             return Results.Ok();
         });
     }
 }
+
+public record BackgroundsModel(string today, string planed, string important, string tasks);

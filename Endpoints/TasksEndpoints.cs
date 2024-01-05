@@ -39,52 +39,6 @@ public static class TasksEndpoints
             return Results.Json(new { today = today, planed = planed, important = important, tasks = tasks, countsList = countsList });
         });
 
-        // Отримання та встановлення важливості завданнь.
-        app.MapPut("/tasks/set-important", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            UserTask? data = await context.Request.ReadFromJsonAsync<UserTask>();
-
-            if (data is null) return Results.BadRequest();
-
-            UserTask? task = await db.Tasks.FindAsync(data.Id);
-            if (task is null) return Results.NotFound();
-
-            task.Important = data.Important;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
-        // Отримання та встановлення властивості завдання виконати сьогодні.
-        app.MapPut("/tasks/set-today", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            UserTask? data = await context.Request.ReadFromJsonAsync<UserTask>();
-            if (data is null) return Results.BadRequest();
-
-            UserTask? task = await db.Tasks.FindAsync(data.Id);
-            if (task is null) return Results.NotFound();
-
-            task.Today = data.Today;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
-        // Отримання та встановлення властовості "Виконано" у завдання.
-        app.MapPut("/tasks/set-completed", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var data = await context.Request.ReadFromJsonAsync<UserTask>();
-            if (data is null) return Results.BadRequest();
-
-            var task = db.Tasks.FirstOrDefault(t => t.Id == data.Id);
-            if (task is null) return Results.NotFound();
-
-            task.Completed = data.Completed;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
         // Надсилання завдань на сторінку "Завдання".
         app.MapGet("/tasks", [Authorize] (HttpContext context, ApplicationContext db) =>
         {
@@ -174,78 +128,33 @@ public static class TasksEndpoints
         });
 
         // Отримує назву завдання, створює та надсилає нове завдання у список завдань.
-        app.MapPost("/tasks/new", [Authorize] async (HttpContext context, ApplicationContext db) =>
+        app.MapPost("/tasks", [Authorize] async (HttpContext context, ApplicationContext db) =>
         {
             var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = await db.Users.FindAsync(userId);
+            var user = await db.Users
+                .Include(u => u.ListsOfTasks)
+                .FirstOrDefaultAsync(u => u.Id == userId);
             if (user is null) return Results.NotFound();
 
             var data = await context.Request.ReadFromJsonAsync<UserTask>();
             if (data is null) return Results.BadRequest();
 
+            var list = user.ListsOfTasks?.FirstOrDefault(l => l.Id == data.ListOfTasksId);
+
             var newTask = new UserTask(
                 name: data.Name,
-                complited: false,
+                complited: data.Completed,
                 important: data.Important,
                 createDate: DateTime.Now
             )
             {
                 User = user,
                 UserId = userId,
+                Today = data.Today,
+                ListOfTasks = list ?? null,
+                ListOfTasksId = list?.Id ?? null
             };
-            newTask = db.Tasks.Add(newTask).Entity;
-            db.SaveChanges();
 
-            return Results.Json(newTask);
-        });
-
-        // Отримує назву завдання, створює та надсилає нове Важливе завдання у список завдань.
-        app.MapPost("/tasks/new-important", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = await db.Users.FindAsync(userId);
-            if (user is null) return Results.NotFound();
-
-            var data = await context.Request.ReadFromJsonAsync<UserTask>();
-            if (data is null) return Results.BadRequest();
-
-            var newTask = new UserTask(
-                name: data.Name,
-                complited: false,
-                important: data.Important,
-                createDate: DateTime.Now
-            )
-            {
-                User = user,
-                UserId = userId,
-            };
-            newTask = db.Tasks.Add(newTask).Entity;
-            db.SaveChanges();
-
-            return Results.Json(newTask);
-        });
-
-        // Отримує назву завдання, створює та надсилає нове Важливе завдання у список завдань.
-        app.MapPost("/tasks/new-today", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = await db.Users.FindAsync(userId);
-            if (user is null) return Results.NotFound();
-
-            var data = await context.Request.ReadFromJsonAsync<UserTask>();
-            if (data is null) return Results.BadRequest();
-
-            var newTask = new UserTask(
-                name: data.Name,
-                complited: false,
-                important: false,
-                createDate: DateTime.Now
-            )
-            {
-                User = user,
-                UserId = userId,
-                Today = data.Today
-            };
             newTask = db.Tasks.Add(newTask).Entity;
             db.SaveChanges();
 
@@ -264,8 +173,8 @@ public static class TasksEndpoints
             return Results.Ok();
         });
 
-        // Отримує завдання та редагує його зміст.
-        app.MapPut("/tasks/set-description/", [Authorize] async (HttpContext context, ApplicationContext db) =>
+        // Отримує завдання та редагує його властивості вісносно отриманого об'єкту.
+        app.MapPut("/tasks", [Authorize] async (HttpContext context, ApplicationContext db) =>
         {
             var data = await context.Request.ReadFromJsonAsync<UserTask>();
             if (data is null) return Results.BadRequest();
@@ -273,29 +182,18 @@ public static class TasksEndpoints
             UserTask? task = await db.Tasks.FindAsync(data.Id);
             if (task is null) return Results.NotFound();
 
-            task.Description = data.Description;
+            task.Name = data.Name ?? task.Name;
+            task.Description = data.Description ?? task.Description;
+            task.Completed = data.Completed;
+            task.Important = data.Important;
+            task.Today = data.Today;
             db.SaveChanges();
 
             return Results.Ok();
         });
 
-        // Отримує завдання та редагує його назву.
-        app.MapPut("/tasks/set-name/", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var data = await context.Request.ReadFromJsonAsync<UserTask>();
-            if (data is null) return Results.BadRequest();
-
-            UserTask? task = await db.Tasks.FindAsync(data.Id);
-            if (task is null) return Results.NotFound();
-
-            task.Name = data.Name;
-            db.SaveChanges();
-
-            return Results.Ok();
-        });
-
-        // Отримує інформацію про дату виконання завдання.
-        app.MapPut("/tasks/set-finish-date/{id}", [Authorize] async (int id, HttpContext context, ApplicationContext db) =>
+        // Отримує інформацію про дату виконання завдання та встановлює її завданню.
+        app.MapPut("/tasks/finish-date/{id}", [Authorize] async (int id, HttpContext context, ApplicationContext db) =>
         {
             string? dateString = await context.Request.ReadFromJsonAsync<string>();
 

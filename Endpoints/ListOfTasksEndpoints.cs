@@ -36,6 +36,7 @@ public static class ListOfTasksEndpoints
             return Results.Json(tasks);
         });
 
+        // Видалення списку за отриманим ідентифікатором.
         app.MapDelete("/lists-of-tasks/{id}", [Authorize] (int id, HttpContext context, ApplicationContext db) =>
         {
             var list = db.ListsOfTasks?
@@ -51,11 +52,11 @@ public static class ListOfTasksEndpoints
             db.ListsOfTasks?.Remove(list);
             db.SaveChanges();
 
-            return Results.Json(list.Tasks?.ToList());
+            return Results.Ok();
         });
 
-        // Отримує та встановлює назву списку завдань.
-        app.MapPut("/lists-of-tasks/set-name/", [Authorize] async (HttpContext context, ApplicationContext db) =>
+        // Отримує та встановлює нові дані для списку завдань.
+        app.MapPut("/lists-of-tasks", [Authorize] async (HttpContext context, ApplicationContext db) =>
         {
             ListOfTasks? data = await context.Request.ReadFromJsonAsync<ListOfTasks>();
             if (data?.Id is null || data.Name is null) return Results.BadRequest();
@@ -70,7 +71,7 @@ public static class ListOfTasksEndpoints
         });
 
         // Створює та надсилає новий список.
-        app.MapGet("/lists-of-tasks/new", [Authorize] (HttpContext context, ApplicationContext db) =>
+        app.MapPost("/lists-of-tasks", [Authorize] (HttpContext context, ApplicationContext db) =>
         {
             var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
             var user = db.Users.FirstOrDefault(u => u.Id == userId);
@@ -90,57 +91,8 @@ public static class ListOfTasksEndpoints
             return Results.Json(newList);
         });
 
-        // Створює та надсилає нове завдання у списку.
-        app.MapPost("/lists-of-tasks/new-task", [Authorize] async (HttpContext context, ApplicationContext db) =>
-        {
-            var userId = int.Parse(context.User.FindFirst("Id")?.Value!);
-            var user = db.Users
-                .Include(u => u.ListsOfTasks)
-                .FirstOrDefault(u => u.Id == userId);
-            if (user is null) return Results.NotFound();
-
-            var data = await context.Request.ReadFromJsonAsync<UserTask>();
-            if (data is null) return Results.BadRequest();
-
-            var list = user.ListsOfTasks?.FirstOrDefault(l => l.Id == data.ListOfTasksId);
-            if (list is null) return Results.BadRequest();
-
-            var newTask = new UserTask(
-                name: data.Name,
-                complited: false,
-                important: data.Important,
-                createDate: DateTime.Now
-            )
-            {
-                User = user,
-                UserId = userId,
-                ListOfTasks = list,
-                ListOfTasksId = list.Id
-            };
-
-            newTask = db.Tasks.Add(newTask).Entity;
-            db.SaveChanges();
-
-            return Results.Json(newTask);
-        });
-
-        // Надсилає шляхи фотографій для заднього фону.
-        app.MapGet("/backgrounds", [Authorize] (HttpContext context, ApplicationContext db) =>
-        {
-            var photoFolderPath = "wwwroot/photos/"; // або використовуйте абсолютний шлях
-
-            // Отримати список файлів у папці фотографій
-            var photoFiles = Directory
-                .GetFiles(photoFolderPath, "*.jpg")
-                .Select(Path.GetFileName)
-                .ToList();
-
-            // Повернути список шляхів у форматі JSON
-            return Results.Json(photoFiles);
-        });
-
         // Отримує назву нового фону для списку завдань за ідентифіктором.
-        app.MapPut("/lists-of-tasks/set-background/{id}", [Authorize] async (int id, HttpContext context, ApplicationContext db) =>
+        app.MapPut("/lists-of-tasks/background/{id}", [Authorize] async (int id, HttpContext context, ApplicationContext db) =>
         {
             var list = db.ListsOfTasks?
                 .Include(l => l.Tasks)
