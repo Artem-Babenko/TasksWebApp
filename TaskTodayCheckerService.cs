@@ -2,6 +2,9 @@
 
 namespace TasksWebApp;
 
+/// <summary>
+/// Сервіс, який перевірятиме кожне завдання кодну добу, чи відображати його сьогодні.
+/// </summary>
 public class TaskTodayCheckerService
 {
     private Timer? timer;
@@ -30,9 +33,7 @@ public class TaskTodayCheckerService
     {
         try
         {
-            // Ваш код, який виконується о 00:00:00, розмістіть тут
             ApplicationContext db = new ApplicationContext();
-            // Виконайте ваші дії...
             List<UserTask> tasks = db.Tasks.ToList();
 
             int countTaskToday = 0;
@@ -54,7 +55,6 @@ public class TaskTodayCheckerService
         }
         catch (Exception ex)
         {
-            // Обробляти винятки
             Console.WriteLine($"Виникла помилка: {ex.Message}");
         }
     }
