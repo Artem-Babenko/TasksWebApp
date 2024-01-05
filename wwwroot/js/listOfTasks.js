@@ -55,7 +55,7 @@ export async function userListOfTasks(list) {
             nameSpan.blur();
             // Надсилаєм нову назву.
             incRequests();
-            const response = await fetch("/lists-of-tasks/set-name/", {
+            const response = await fetch("/lists-of-tasks", {
                 method: "PUT",
                 headers: { "Accept": "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -80,7 +80,7 @@ export async function userListOfTasks(list) {
         if (!shouldTriggerBlur) return;
         // Надсилаєм нову назву. 
         incRequests();
-        const response = await fetch("/lists-of-tasks/set-name/", {
+        const response = await fetch("/lists-of-tasks", {
             method: "PUT",
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -124,7 +124,7 @@ export async function userListOfTasks(list) {
                 image.classList.add('active');
                 main.style.backgroundImage = `url('/photos/${path}')`;
                 incRequests();
-                const response = await fetch(`/lists-of-tasks/set-background/${list.id}`, {
+                const response = await fetch(`/lists-of-tasks/background/${list.id}`, {
                     method: "PUT",
                     headers: { "Accept": "application/json", "Content-Type": "application/json" },
                     body: JSON.stringify(path.toString())

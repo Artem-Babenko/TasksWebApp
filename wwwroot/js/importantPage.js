@@ -16,7 +16,7 @@ export async function importantPage() {
     main.append(header);
 
     // Вікно властивостей.
-    const properties = headerProperties('importantPhotoPath', '/user/set-important-background', propertiesButton);
+    const properties = headerProperties('importantPhotoPath', 'important', propertiesButton);
     main.append(properties);
 
     // Площинна для відображення  завдань.

@@ -16,7 +16,7 @@ export async function todayPage() {
     main.append(header);
 
     // Вікно властивостей.
-    const properties = headerProperties('todayPhotoPath', '/user/set-today-background', propertiesButton);
+    const properties = headerProperties('todayPhotoPath', 'today', propertiesButton);
     main.append(properties);
 
     // Площинна для відображення  завдань.

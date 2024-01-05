@@ -51,13 +51,11 @@ export function pageHeader(pageName, showNowDate = false, isList = false) {
     } else {
         return { header, propertiesButton };
     }
-    
-
 }
 
 
 /** Метод, який повертає Вікно властивостей.*/
-export function headerProperties(pathCookieName, urlToSavePath, propertiesButton) {
+export function headerProperties(pathCookieName, pageName, propertiesButton) {
     const properties = document.createElement("div");
     properties.classList.add('properties');
 
@@ -78,7 +76,7 @@ export function headerProperties(pathCookieName, urlToSavePath, propertiesButton
 
         if (paths.length === 0) {
             incRequests();
-            const response = await fetch('/backgrounds', {
+            const response = await fetch('/api/backgrounds', {
                 method: "GET",
                 headers: { "Accept": "application/json" }
             });
@@ -107,10 +105,25 @@ export function headerProperties(pathCookieName, urlToSavePath, propertiesButton
                 main.style.backgroundImage = `url('/photos/${path}')`;
                 // Встановлюєм шлях до фото користувачу на сервері.
                 incRequests();
-                const response = await fetch(urlToSavePath, {
+
+                let jsonObj;
+                if (pageName == "today") {
+                    jsonObj = JSON.stringify({ today: path })
+                }
+                else if (pageName == "planed") {
+                    jsonObj = JSON.stringify({ planed: path })
+                }
+                else if (pageName == "important") {
+                    jsonObj = JSON.stringify({ important: path })
+                }
+                else if (pageName == "tasks") {
+                    jsonObj = JSON.stringify({ tasks: path })
+                }
+
+                const response = await fetch('/user/backgrounds', {
                     method: "PUT",
                     headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                    body: JSON.stringify(path.toString())
+                    body: jsonObj
                 });
                 if (response.ok) {
                     Cookies.set(pathCookieName, path);
@@ -394,37 +407,22 @@ async function createTask(text, isToday = false, isImportant = false, listId = n
     const newTask = taskContainer(taskObject);
     uncompleted.append(newTask);
 
-    try {
-        // На основі параметрів створюється запит на сервер.
-        let url = '/tasks/new';
-        if (isToday) {
-            url = '/tasks/new-today';
-        } else if (isImportant) {
-            url = '/tasks/new-important';
-        } else if (listId) {
-            url = '/lists-of-tasks/new-task';
-        }
+    const response = await fetch('/tasks', {
+        method: "POST",
+        headers: { "Accept": "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+            name: text,
+            today: isToday,
+            important: isImportant,
+            listOfTasksId: listId
+        })
+    });
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: { "Accept": "application/json", "Content-Type": "application/json" },
-            body: JSON.stringify({
-                name: text,
-                today: isToday,
-                important: isImportant,
-                listOfTasksId: listId
-            })
-        });
-
-        if (response.ok) {
-            decRequests();
-            const task = await response.json();
-            // Завдання на сторінці перезаписується.
-            newTask.remove();
-            uncompleted.append(taskContainer(task));
-        }
-    } catch (error) {
-        console.error('Error:', error);
+    if (response.ok) {
+        decRequests();
+        const task = await response.json();
+        // Завдання на сторінці перезаписується.
         newTask.remove();
+        uncompleted.append(taskContainer(task));
     }
 }

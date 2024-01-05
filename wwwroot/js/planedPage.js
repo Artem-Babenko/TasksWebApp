@@ -13,7 +13,7 @@ export async function planedPage() {
     main.append(header);
 
     // Вікно властивостей
-    const properties = headerProperties('planedPhotoPath', '/user/set-planed-background', propertiesButton);
+    const properties = headerProperties('planedPhotoPath', 'planed', propertiesButton);
     main.append(properties);
 
     // Площинна для відображення  завдань.

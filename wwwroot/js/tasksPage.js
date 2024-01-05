@@ -16,7 +16,7 @@ export async function tasksPage() {
     main.append(header); 
 
     // Вікно властивостей
-    const properties = headerProperties('tasksPhotoPath', '/user/set-tasks-background', propertiesButton);
+    const properties = headerProperties('tasksPhotoPath', 'tasks',  propertiesButton);
     main.append(properties);
 
     // Площинна для відображення  завдань.
@@ -122,7 +122,7 @@ export function taskContainer(task) {
             checkmark.classList.remove('active');
             checkmark.classList.remove('fa-regular', 'fa-square-check');
             checkmark.classList.add('fa-regular', 'fa-square');
-            setTaskCompleted(task.id, false);
+            setTaskCompleted(task, false);
             task.completed = false;
 
             uncompletedSpace.append(taskContainer(task));
@@ -157,7 +157,7 @@ export function taskContainer(task) {
 
         } else {
             checkmark.classList.add('active');
-            setTaskCompleted(task.id, true);
+            setTaskCompleted(task, true);
             task.completed = true;
             checkmark.classList.remove('fa-regular', 'fa-square');
             checkmark.classList.add('fa-regular', 'fa-square-check');
@@ -209,8 +209,7 @@ export function taskContainer(task) {
             .filter(node => node.nodeType === Node.TEXT_NODE)
             .map(node => node.textContent)
             .join('');
-        setTaskName(task.id, textWithoutChildren);
-        //setTaskName(task.id, taskName.textContent);
+        setTaskName(task, textWithoutChildren);
     });
 
     taskName.addEventListener('keydown', (event) => {
@@ -220,8 +219,7 @@ export function taskContainer(task) {
                 .filter(node => node.nodeType === Node.TEXT_NODE)
                 .map(node => node.textContent)
                 .join('');
-            setTaskName(task.id, textWithoutChildren);
-            //setTaskName(task.id, taskName.textContent);
+            setTaskName(task, textWithoutChildren);
             shouldTriggerBlur1 = false;
             taskName.blur();
         }
@@ -274,7 +272,7 @@ export function taskContainer(task) {
         if (star.classList.contains('active')) {
             star.classList.remove('active');
             // Оновлюємо дані на сервері
-            setTaskImportant(task.id, false);
+            setTaskImportant(task, false);
             task.important = false;
             if (!task.completed) {
                 importantSpan.innerText = (importantSpan.innerText <= 1) ? "" : --importantSpan.innerText;
@@ -297,7 +295,7 @@ export function taskContainer(task) {
         }
         else { // Якщо вимкнена
             star.classList.add('active');
-            setTaskImportant(task.id, true);
+            setTaskImportant(task, true);
             task.important = true;
             if (!task.completed)
                 importantSpan.innerText++;
@@ -376,13 +374,13 @@ export function taskContainer(task) {
 
     descriptionTextarea.addEventListener('blur', () => {
         if (shouldTriggerBlur) {
-            setTaskDescription(task.id, descriptionTextarea.value);
+            setTaskDescription(task, descriptionTextarea.value);
         }
     });
     descriptionTextarea.addEventListener('keydown', (event) => {
         if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-            setTaskDescription(task.id, descriptionTextarea.value);
+            setTaskDescription(task, descriptionTextarea.value);
             shouldTriggerBlur = false; // Змінюємо змінну, щоб не викликати blur
             descriptionTextarea.blur();
         }
@@ -416,7 +414,7 @@ export function taskContainer(task) {
             today.textContent = "";
             today.append(todayIcon);
             today.append('Додати на сьогодні');
-            setTaskToday(task.id, false);
+            setTaskToday(task, false);
             task.today = false;
             if (!task.completed) todaySpan.innerText = (todaySpan.innerText <= 1) ? "" : --todaySpan.innerText;
             if (activeNavButtonSpan.parentElement.classList.contains('today')) {
@@ -428,7 +426,7 @@ export function taskContainer(task) {
             today.textContent = "";
             today.append(todayIcon);
             today.append('Виконати сьогодні');
-            setTaskToday(task.id, true);
+            setTaskToday(task, true);
             task.today = true;
             if (!task.completed) todaySpan.innerText = ++todaySpan.innerText;
             today.append(removeTodayButton);
@@ -466,7 +464,7 @@ export function taskContainer(task) {
         taskName.style.padding = "10px 0 10px 0";
         if (!task.completed) planedSpan.innerText = (planedSpan.innerText <= 1) ? "" : --planedSpan.innerText;
         incRequests();
-        const response = await fetch(`/tasks/set-finish-date/${task.id}`, {
+        const response = await fetch(`/tasks/finish-date/${task.id}`, {
             method: "PUT",
             headers: { "Accept": "application/json", "Content-Type": "application/json" },
             body: JSON.stringify("null")
@@ -619,17 +617,19 @@ export function taskContainer(task) {
 
 /**
  * Асинхронний метод, який робить PUT-запит на сервер, де встановлює важливість завдання.
- * @param {number} id Ідентифікатор завдання.
+ * @param {object} task Завдання.
  * @param {boolean} importantBool Важливе завдання чи ні.
  */
-async function setTaskImportant(id, importantBool) {
+async function setTaskImportant(task, importantBool) {
     incRequests();
-    const response = await fetch(`/tasks/set-important`, {
+    const response = await fetch(`/tasks`, {
         method: "PUT",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
-            id: id,
-            important: importantBool
+            id: task.id,
+            important: importantBool,
+            today: task.today,
+            completed: task.completed
         })
     });
     if (response.ok) {
@@ -639,17 +639,19 @@ async function setTaskImportant(id, importantBool) {
 
 /**
  * Метод, який робить PUT-запит на сервер, де встановлює властивість "Виконане" у завдання.
- * @param {number} id Ідентифікатор завдання.
+ * @param {object} task Завдання.
  * @param {boolean} completedBool Чи завдання виконане.
  */
-async function setTaskCompleted(id, completedBool) {
+async function setTaskCompleted(task, completedBool) {
     incRequests();
-    const response = await fetch("/tasks/set-completed", {
+    const response = await fetch("/tasks", {
         method: "PUT",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
-            id: id,
-            completed: completedBool
+            id: task.id,
+            important: task.important,
+            completed: completedBool,
+            today: task.today,
         })
     });
     if (response.ok) {
@@ -657,14 +659,17 @@ async function setTaskCompleted(id, completedBool) {
     }
 }
 
-async function setTaskDescription(id, text) {
+async function setTaskDescription(task, text) {
     incRequests();
-    const response = await fetch("/tasks/set-description", {
+    const response = await fetch("/tasks", {
         method: "PUT",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
-            id: id,
-            description: text
+            id: task.id,
+            description: text,
+            important: task.important,
+            completed: task.completed,
+            today: task.today,
         })
     });
     if (response.ok) {
@@ -672,14 +677,17 @@ async function setTaskDescription(id, text) {
     }
 }
 
-async function setTaskName(id, text) {
+async function setTaskName(task, text) {
     incRequests();
-    const response = await fetch("/tasks/set-name", {
+    const response = await fetch("/tasks", {
         method: "PUT",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
-            id: id,
-            name: text
+            id: task.id,
+            name: text,
+            important: task.important,
+            completed: task.completed,
+            today: task.today,
         })
     });
     if (response.ok) {
@@ -687,14 +695,16 @@ async function setTaskName(id, text) {
     }
 }
 
-async function setTaskToday(id, todayBool) {
+async function setTaskToday(task, todayBool) {
     incRequests();
-    const response = await fetch("/tasks/set-today", {
+    const response = await fetch("/tasks", {
         method: "PUT",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
-            id: id,
-            today: todayBool
+            id: task.id,
+            important: task.important,
+            completed: task.completed,
+            today: todayBool,
         })
     });
     if (response.ok) {
@@ -840,7 +850,7 @@ function renderCalendar(calendar, monthLabel, tbody, currentMonth, currentYear, 
                     taskName.querySelector('.annotation').textContent = formatDate(cellDate);
 
                     incRequests();
-                    const response = await fetch(`/tasks/set-finish-date/${task.id}`, {
+                    const response = await fetch(`/tasks/finish-date/${task.id}`, {
                         method: "PUT", 
                         headers: { "Accept": "application/json", "Content-Type": "application/json" },
                         body: JSON.stringify(cellDate.getDate() + "." + (cellDate.getMonth() + 1) + "." + cellDate.getFullYear())

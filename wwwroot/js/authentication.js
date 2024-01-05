@@ -90,7 +90,7 @@ async function login() {
     error.style.display = "none";
 
     incRequests();
-    const response = await fetch('/login', {
+    const response = await fetch('/user/login', {
         method: "POST",
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -195,7 +195,7 @@ async function registration() {
     error.style.display = "none";
 
     incRequests();
-    const response = await fetch("/registration", {
+    const response = await fetch("/user/registration", {
         method: "POST", 
         headers: { "Accept": "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({

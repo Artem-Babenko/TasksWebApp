@@ -138,7 +138,7 @@ function logout() {
     logoutPanel.style.display = "flex";
     logoutPanel.querySelector('.yes').addEventListener('click', async () => {
         incRequests();
-        const response = await fetch('/logout');
+        const response = await fetch('/user/logout');
 
         if (response.ok) {
             decRequests();
@@ -172,8 +172,8 @@ function accoutPropertiesMenu() {
 /** Додати список завдань користувача. */
 async function addList() {
     incRequests();
-    const response = await fetch('/lists-of-tasks/new', {
-        method: "GET",
+    const response = await fetch('/lists-of-tasks', {
+        method: "POST",
         headersL: {"Accept" : "application/json"}
     })
     if (!response.ok) return;
