@@ -1,0 +1,575 @@
+openapi: 3.0.1
+info:
+  title: TasksWebApp
+  version: '1.0'
+  
+servers:
+- url: http://localhost:5001
+  
+paths:
+  /:
+    get:
+      tags:
+        - Default
+      summary: Завантаження головної сторінки.
+      description: Кінцева точка для отримання головної сторінки.
+      responses:
+        '200':
+          description: Сторінка завантажена успішно.
+      security: []
+
+  /api/backgrounds:
+    get:
+      summary: Отримання шляхів фотографій для заднього фону.
+      description: Кінцева точка для отримання шляхів фотографій для використання як задній фон.
+      tags:
+        - Default
+      responses:
+        '200':
+          description: Успішне отримання шляхів фотографій для заднього фону.
+          content:
+            application/json:
+              example:
+                - "photo1.jpg"
+                - "photo2.jpg"
+                - "photo3.jpg"
+      security: []
+
+  /tasks/counts:
+    get:
+      tags:
+        - Tasks
+      summary:  Отримання кількості не виконаних завдань у користувача.
+      description: Кінцева точка для отримання інформації про кількість не виконаних завдань, таких як кількість завдань на сьогодні, запланованих, важливих та загальна кількість завдань.
+      responses:
+        '200':
+          description: Успішний запит. Повертає список кількості не виконаних завдань.
+          content:
+            application/json:
+              example:
+                today: 5
+                planed: 10
+                important: 3
+                tasks: 15
+                countsList:
+                  - id: 1
+                    count: 8
+                  - id: 2
+                    count: 5
+      security:
+        - CookieAuth: []
+
+  /tasks:
+    get:
+      summary: Отримання списку завдань користувача.
+      description: Кінцева точка для отримання списку завдань користувача.
+      tags:
+        - Tasks
+      responses:
+        '200':
+          description: Успішне отримання завдань.
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: "Завдання 1"
+                  description: "Опис завдання 1"
+                  completed: false
+                  important: true
+                  today: true
+                  createDate: "2023-01-04T12:00:00"
+                  finishDate: "2023-01-10T12:00:00"
+                  daysToRepeat: [1, 3, 5]
+                  wastedTimes: null
+                - id: 2
+                  name: "Завдання 2"
+                  description: "Опис завдання 2"
+                  completed: true
+                  important: false
+                  today: false
+                  createDate: "2023-01-05T09:30:00"
+                  finishDate: null
+                  daysToRepeat: null
+                  wastedTimes: null
+    post:
+      summary: Створення нового завдання.
+      description: Кінцева точка для створення нового завдання та його додавання до списку завдань користувача.
+      tags:
+        - Tasks
+      requestBody:
+        description: Об'єкт UserTask для нового завдання.
+        required: true
+        content:
+          application/json:
+            example:
+              name: "Нове завдання"
+              important: true
+              completed: false
+              today: false
+              listOfTasksId: 1  # Ідентифікатор списку завдань(якщо створюється для списку завдань користувача), може бути null
+      responses:
+        '200':
+          description: Успішне створення нового завдання.
+          content:
+            application/json:
+              example:
+                id: 3
+                name: "Нове завдання"
+                description: null
+                completed: false
+                important: true
+                today: false
+                createDate: "2023-01-04T16:30:00"
+                finishDate: null
+                daysToRepeat: null
+                wastedTimes: null
+                userId: 1
+                listOfTasksId: 1
+      security:
+        - CookieAuth: []
+    put:
+      summary: Редагування властивостей завдання.
+      description: Кінцева точка для надсилання відредагованого об'єкту завдання, яке вже існує.
+      tags:
+        - Tasks
+      requestBody:
+        description: Об'єкт UserTask для збереження редагування властивостей завдання.
+        required: true
+        content:
+          application/json:
+            example:
+              id: 1
+              name: "Змінене завдання"
+              description: "Новий опис завдання"
+              completed: true
+              important: false
+              today: true
+      responses:
+        '200':
+          description: Успішне редагування властивостей завдання.
+      security:
+        - CookieAuth: []
+
+  /tasks/{id}:
+    get:
+      summary: Отримання завдання за ідентифікатором.
+      description: Кінцева точка для отримання інформації про конкретне завдання користувача за його ідентифікатором.
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Ідентифікатор завдання
+      responses:
+        '200':
+          description: Успішне отримання завдання.
+          content:
+            application/json:
+              example:
+                id: 1
+                name: "Завдання 1"
+                description: "Опис завдання 1"
+                completed: false
+                important: true
+                today: true
+                createDate: "2023-01-04T12:00:00"
+                finishDate: "2023-01-10T12:00:00"
+                daysToRepeat: [1, 3, 5]
+                wastedTimes: null
+    delete:
+      summary: Видалення завдання за ідентифікатором.
+      description: Кінцева точка для видалення конкретного завдання користувача за його ідентифікатором.
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Ідентифікатор завдання
+      responses:
+        '200':
+          description: Успішне видалення завдання.
+      security:
+        - CookieAuth: []
+
+  /tasks/important:
+    get:
+      summary: Отримання важливих завдань користувача.
+      description: Кінцева точка для отримання списку важливих завдань користувача. Завдання які мають властивість "important" true.
+      tags:
+        - Tasks
+      responses:
+        '200':
+          description: Успішне отримання важливих завдань.
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: "Завдання 1"
+                  description: "Опис завдання 1"
+                  completed: false
+                  important: true
+                  today: true
+                  createDate: "2023-01-04T12:00:00"
+                  finishDate: null
+                  daysToRepeat: null
+                  wastedTimes: null
+                - id: 2
+                  name: "Завдання 2"
+                  description: "Опис завдання 2"
+                  completed: true
+                  important: true
+                  today: false
+                  createDate: "2023-01-05T09:30:00"
+                  finishDate: null
+                  daysToRepeat: null
+                  wastedTimes: null
+      security:
+        - CookieAuth: []
+  
+  /tasks/today:
+    get:
+      summary: Отримання завдань, які повинні бути виконані сьогодні. 
+      description: Кінцева точка для отримання списку завдань користувача, які повинні бути виконані сьогодні. Завдання які мають властивість "today" true.
+      tags:
+        - Tasks
+      responses:
+        '200':
+          description: Успішне отримання завдань на сьогодні.
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: "Завдання 1"
+                  description: "Опис завдання 1"
+                  completed: false
+                  important: true
+                  today: true
+                  createDate: "2023-01-04T12:00:00"
+                  finishDate: "2023-01-10T12:00:00"
+                  daysToRepeat: [1, 3, 5]
+                  wastedTimes: null
+                - id: 2
+                  name: "Завдання 2"
+                  description: "Опис завдання 2"
+                  completed: true
+                  important: true
+                  today: true
+                  createDate: "2023-01-05T09:30:00"
+                  finishDate: null
+                  daysToRepeat: null
+                  wastedTimes: null
+      security:
+        - CookieAuth: []
+
+  /tasks/planed:
+    get:
+      summary: Отримання запланованих завдань користувача.
+      description: Кінцева точка для отримання списку запланованих завдань користувача. Завдання які мають властивість "finishDate".
+      tags:
+        - Tasks
+      responses:
+        '200':
+          description: Успішне отримання запланованих завдань.
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: "Завдання 1"
+                  description: "Опис завдання 1"
+                  completed: false
+                  important: true
+                  today: true
+                  createDate: "2023-01-04T12:00:00"
+                  finishDate: "2023-01-10T12:00:00"
+                  daysToRepeat: [1, 3, 5]
+                  wastedTimes: null
+                - id: 2
+                  name: "Завдання 2"
+                  description: "Опис завдання 2"
+                  completed: true
+                  important: true
+                  today: false
+                  createDate: "2023-01-05T09:30:00"
+                  finishDate: "2023-01-08T12:00:00"
+                  daysToRepeat: null
+                  wastedTimes: null
+      security:
+        - CookieAuth: []
+
+  /tasks/finish-date/{id}:
+    put:
+      summary: Встановлення дати завершення завдання.
+      description: Кінцева точка для встановлення кінцевої дати конкретному завданню.
+      tags:
+        - Tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+          description: Дата у форматі "d.m.yyyy" або "null".
+          required: true
+          content:
+            application/json:
+              example: "31.12.2023"
+      responses:
+        '200':
+          description: Успішне встановлення дати завершення завдання.
+      security:
+        - CookieAuth: []
+
+  /user:
+    get:
+      summary: Отримання інформації про зареєстрованого користувача.
+      description: Кінцева точка для отримання інформації про зареєстрованого користувача.
+      tags:
+        - User
+      responses:
+        '200':
+          description: Успішне отримання інформації про зареєстрованого користувача.
+          content:
+            application/json:
+              example:
+                id: 1,
+                name: Артем,
+                surname: Бабенко,
+                login: artem123,
+                password: 12345678,
+                todayBackground: 994323.jpg,
+                planedBackground: 53454.jpg,
+                importantBackground: 783283475.jpg,
+                tasksBackground: bear.jpg,
+                tasks: null,
+                listsOfTasks: null
+      security:
+        - CookieAuth: []
+
+  /user/login:
+    post:
+      summary: Надсилання даних користувача для авторизація.
+      description: Кінцева точка для надсилання даних користувача для авторизації його у програмі.
+      tags:
+        - User
+      requestBody:
+        description: Об'єкт для авторизації.
+        required: true
+        content:
+          application/json:
+            example:
+              login: "artem12321"
+              password: "123123123"
+      responses:
+        '200':
+          description: Успішна авторизація користувача.
+      security: []
+
+  /user/registration:
+    post:
+      summary: Надсилання даних реєстрації, створення нового користувача та авторизація.
+      description: Кінцева точка для надсилання даних реєстрації, створення нового користувача та авторизації.
+      tags:
+        - User
+      requestBody:
+        description: Об'єкт  для реєстрації.
+        required: true
+        content:
+          application/json:
+            example:
+              name: "Олег"
+              surname: "Каністра"
+              login: "oleg123123"
+              password: "65546456"
+      responses:
+        '200':
+          description: Успішна реєстрація та авторизація користувача.
+      security: []
+
+  /user/logout:
+    get:
+      summary: Запит на видалення авторизації.
+      description: Кінцева точка для надсилання запиту на видалення авторизації.
+      tags:
+        - User
+      responses:
+        '200':
+          description: Успішне видалення авторизації.
+      security: []
+
+  /user/backgrounds:
+    put:
+      summary: Надсилання назви нових фото для фону сторінки.
+      description: Кінцева точка для надсилання та збереження нових назв фотографій для фону користувача.
+      tags:
+        - User
+      requestBody:
+        description: Об'єкт BackgroundsModel для оновлення фотографій фону.
+        required: true
+        content:
+          application/json:
+            example:
+              today: "today_background.jpg"
+              planed: "planed_background.jpg"
+              important: "important_background.jpg"
+              tasks: "tasks_background.jpg"
+      responses:
+        '200':
+          description: Успішне оновлення фотографій фону.
+      security:
+        - CookieAuth: []
+
+  /lists-of-tasks:
+    get:
+      summary: Отримання списків завдань користувача.
+      tags:
+        - Lists of tasks
+      responses:
+        '200':
+          description: Успішне отримання списків завдань користувача.
+          content:
+            application/json:
+              example: |
+                [
+                  {
+                    "id": 2,
+                    "name": "Університет",
+                    "background": "orange.jpg"
+                  },
+                  {
+                    "id": 51,
+                    "name": "Список",
+                    "background": "orange.jpg"
+                  }
+                ]
+      security:
+        - CookieAuth: []
+    post:
+      summary: Надсилання запиту на створення нового списку.
+      tags:
+        - Lists of tasks
+      responses:
+        '200':
+          description: Успішне створення нового списку завдань.
+          content:
+            application/json:
+              example: |
+                {
+                  "id": 52,
+                  "name": "Новий список",
+                  "background": "blue.jpg"
+                }
+      security:
+        - CookieAuth: []
+    put:
+      summary: Надсилання та встановлення нових даних для списку завдань.
+      tags:
+        - Lists of tasks
+      requestBody:
+        description: Об'єкт ListOfTasks.
+        required: true
+        content:
+          application/json:
+            example:
+              id: 2
+              name: "Університет"
+      responses:
+        '200':
+          description: Успішне встановлення нових даних для списку завдань.
+      security:
+        - CookieAuth: []
+
+  /lists-of-tasks/{id}:
+    get:
+      summary: Отримання списку завдань за отриманим ідентифікатором.
+      tags:
+        - Lists of tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Успішне отримання списку завдань за вказаним ідентифікатором.
+          content:
+            application/json:
+              example:
+                - id: 4
+                  name: "Написати семінар."
+                  description: ""
+                  completed: false
+                  important: true
+                  today: true
+                  createDate: "2023-11-21T17:56:32.8628406"
+                  finishDate: "2023-11-25T23:59:00"
+                  daysToRepeat: null
+                  wastedTimes: null
+                  listOfTasks:
+                    id: 2
+                    name: "Університет"
+                    background: "orange.jpg"
+                  listOfTasksId: 2
+      security:
+        - CookieAuth: []
+    delete:
+      summary: Видалення списку за отриманим ідентифікатором.
+      tags:
+        - Lists of tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Успішне видалення списку за вказаним ідентифікатором.
+    
+  /lists-of-tasks/background/{id}:
+    put:
+      summary: Надсилання назви нового фону для списку завдань за ідентифікатором.
+      tags:
+        - Lists of tasks
+      parameters:
+        - name: id
+          in: path
+          required: true
+          style: simple
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Назва нового фону списку завдань.
+        required: true
+        content:
+          application/json:
+            example: "new-background.jpg"
+      responses:
+        '200':
+          description: Успішне оновлення фону для списку завдань.
+      security:
+        - CookieAuth: []
+
+security:
+  - CookieAuth: []
+
+components:
+  securitySchemes:
+    CookieAuth:
+      type: apiKey
+      in: cookie
+      name: AuthenticationCookie
