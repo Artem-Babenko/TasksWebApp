@@ -52,7 +52,7 @@ public static class ListOfTasksEndpoints
             db.ListsOfTasks?.Remove(list);
             db.SaveChanges();
 
-            return Results.Ok();
+            return Results.Json(list.Tasks?.ToList());
         });
 
         // Отримує та встановлює нові дані для списку завдань.
